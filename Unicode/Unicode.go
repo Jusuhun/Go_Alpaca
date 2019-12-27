@@ -9,11 +9,18 @@ import (
 	"strings"
 )
 
-func Execute() {
-	start(".")
+type Unicode struct {
+	Name string
 }
 
-func start(dirname string) {
+func (u Unicode) GetName() string {
+	return "struct Unicode : " + u.Name
+}
+func (u Unicode) Execute() {
+	u.start(".")
+}
+
+func (u Unicode) start(dirname string) {
 	f, err := os.Open(dirname)
 	if err != nil {
 		log.Fatal(err)
@@ -26,12 +33,12 @@ func start(dirname string) {
 
 	for _, file := range files {
 		if file.IsDir() {
-			folder(dirname+"/"+file.Name(), "./export/"+file.Name())
+			u.folder(dirname+"/"+file.Name(), "./export/"+file.Name())
 		}
 	}
 }
 
-func folder(dirname, logName string) {
+func (u Unicode) folder(dirname, logName string) {
 	f, err := os.Open(dirname)
 	if err != nil {
 		log.Fatal(err)
@@ -44,7 +51,7 @@ func folder(dirname, logName string) {
 
 	for _, file := range files {
 		if file.IsDir() {
-			folder(dirname+"/"+file.Name(), logName+"/"+file.Name())
+			u.folder(dirname+"/"+file.Name(), logName+"/"+file.Name())
 		} else {
 			isContinue, err := regexp.MatchString("\\.(h|cpp|c)", file.Name())
 			if err != nil {
@@ -54,14 +61,14 @@ func folder(dirname, logName string) {
 
 			if isContinue {
 				os.MkdirAll(logName, os.ModePerm)
-				find(dirname+"/"+file.Name(), logName+"/"+file.Name())
+				u.find(dirname+"/"+file.Name(), logName+"/"+file.Name())
 			}
 		}
 	}
 }
 
 //파일을 주면 로그를 남긴다.
-func find(name, logName string) {
+func (u Unicode) find(name, logName string) {
 	file, err := os.Open(name)
 	if err != nil {
 		log.Fatal(err)
@@ -75,8 +82,8 @@ func find(name, logName string) {
 	for scanner.Scan() {
 		lineCount++
 
-		line := lineChage(scanner.Text())
-		writeLog(line, logName)
+		line := u.lineChage(scanner.Text())
+		u.writeLog(line, logName)
 	}
 	if err := scanner.Err(); err != nil {
 		fmt.Println("reading standard input:", err)
@@ -84,7 +91,7 @@ func find(name, logName string) {
 }
 
 //파일을 주면 로그를 남긴다.
-func lineChage(line string) string {
+func (u Unicode) lineChage(line string) string {
 	//제외 경우 판단.
 	if true {
 
@@ -282,7 +289,7 @@ func lineChage(line string) string {
 	return result
 }
 
-func writeLog(log, logName string) {
+func (u Unicode) writeLog(log, logName string) {
 	file, err := os.OpenFile(
 		logName,
 		os.O_CREATE|os.O_RDWR|os.O_APPEND,
