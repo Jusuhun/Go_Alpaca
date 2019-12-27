@@ -100,6 +100,18 @@ func lineChage(line string) string {
 				return line
 			}
 		}
+		//#define 가 있으면넘어가야 한다.
+		if true {
+			isContinue, err := regexp.MatchString("#\\s*define", line)
+			if err != nil {
+				log.Fatal(err)
+				return line
+			}
+
+			if isContinue {
+				return line
+			}
+		}
 		//CLimitSingleInstance SingleInstanceObject(TEXT(_T("WinOlb")));
 		//TRACE0(_T("Failed to create status bar\n"));
 		//extern _T("C") 도 넘겨야 한다.
@@ -141,30 +153,6 @@ func lineChage(line string) string {
 		// MIL_TEXT 함수들도 제외.
 		if true {
 			isContinue, err := regexp.MatchString("MIL_TEXT", line)
-			if err != nil {
-				log.Fatal(err)
-				return line
-			}
-
-			if isContinue {
-				return line
-			}
-		}
-		// GetBoxTrack 함수들도 제외.
-		if true {
-			isContinue, err := regexp.MatchString("GetBoxTrack", line)
-			if err != nil {
-				log.Fatal(err)
-				return line
-			}
-
-			if isContinue {
-				return line
-			}
-		}
-		// GetCrossTrack 함수들도 제외.
-		if true {
-			isContinue, err := regexp.MatchString("GetCrossTrack", line)
 			if err != nil {
 				log.Fatal(err)
 				return line
@@ -237,18 +225,23 @@ func lineChage(line string) string {
 		}
 		// strlen -> lstrlen 문자열 길이
 		if true {
-			r, _ := regexp.Compile("strlen")
-			result = r.ReplaceAllString(result, "lstrlen")
+			r, _ := regexp.Compile("([^l])(strlen)")
+			result = r.ReplaceAllString(result, "${1}l${2}")
 		}
 		// strcmp -> lstrcmp 문자열 비교
 		if true {
-			r, _ := regexp.Compile("strcmp")
-			result = r.ReplaceAllString(result, "lstrcmp")
+			r, _ := regexp.Compile("([^l])(strcmp)")
+			result = r.ReplaceAllString(result, "${1}l${2}")
 		}
 		// strcpy -> lstrcpy  문자열 복사
 		if true {
-			r, _ := regexp.Compile("strcpy")
-			result = r.ReplaceAllString(result, "lstrcpy")
+			r, _ := regexp.Compile("([^l])(strcpy)")
+			result = r.ReplaceAllString(result, "${1}l${2}")
+		}
+		// strcat -> lstrcat  문자열 복사
+		if true {
+			r, _ := regexp.Compile("([^l])(strcat)")
+			result = r.ReplaceAllString(result, "${1}l${2}")
 		}
 		// strtok -> wcstok 문자열 가르기
 		if true {
