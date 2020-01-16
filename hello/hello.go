@@ -22,8 +22,9 @@ func main() {
 
 	b := new(bible.Bible)
 	b.Name = "Instance1"
-	b.BookName = "바른성경.txt"
-	b.IniFileName = "소제목.ini"
+	b.BookName = "../바른성경.txt"
+	b.IniFileName = "../소제목.txt"
+	b.OutFile = "../바른성경_Out.md"
 
 	//start([]selecter{u})
 	b.Execute()
