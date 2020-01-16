@@ -5,6 +5,7 @@ import (
 	_ "GO_Alpaca/fizzbuzz"
 	"fmt"
 
+	"GO_Alpaca/bible"
 	_ "GO_Alpaca/example"
 	"GO_Alpaca/unicode"
 	"strconv"
@@ -17,11 +18,15 @@ type selecter interface {
 
 func main() {
 	u := new(unicode.Unicode)
-	fmt.Println(u.GetName())
 	u.Name = "134"
-	fmt.Println(u.GetName())
 
-	start([]selecter{u})
+	b := new(bible.Bible)
+	b.Name = "Instance1"
+	b.BookName = "바른성경.txt"
+	b.IniFileName = "소제목.ini"
+
+	//start([]selecter{u})
+	b.Execute()
 }
 
 func start(items []selecter) {
