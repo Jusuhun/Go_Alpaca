@@ -5,6 +5,7 @@ import (
 	_ "GO_Alpaca/fizzbuzz"
 	"fmt"
 
+	"GO_Alpaca/alpaca"
 	"GO_Alpaca/bible"
 	_ "GO_Alpaca/example"
 	"GO_Alpaca/unicode"
@@ -26,8 +27,14 @@ func main() {
 	b.IniFileName = "../소제목.txt"
 	b.OutFile = "../바른성경_Out.md"
 
+	mdSpinder := new(alpaca.MDSplinder)
+	mdSpinder.Name = "Instance1"
+	mdSpinder.InFile = "001_모세오경.md"
+	mdSpinder.Path = "../"
+
 	//start([]selecter{u})
-	b.Execute()
+	mdSpinder.InFile = "009_공동서신.md"
+	mdSpinder.Execute()
 }
 
 func start(items []selecter) {
