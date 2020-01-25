@@ -1,7 +1,6 @@
 package alpaca
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -9,59 +8,44 @@ import (
 	"strings"
 )
 
+//MDSplinder mds
 type MDSplinder struct {
 	Name   string
 	InFile string
 	Path   string
 }
 
-func (this MDSplinder) GetName() string {
-	return "struct MDSplinder : " + this.Name
+//GetName 인스턴스 이름을 받아온다.
+func (mds MDSplinder) GetName() string {
+	return "struct MDSplinder : " + mds.Name
 }
 
-func (this MDSplinder) Execute() {
-	this.Splin()
+//Execute 실행한다
+func (mds MDSplinder) Execute() {
+	orgin, _ := readFileString(mds.Path + mds.InFile)
+
+	items := spritMarkDown(orgin)
+
+	markDownSave(items, mds.Path)
 }
 
-func (this MDSplinder) Splin() {
-	lines := openToLines(this.Path + this.InFile)
+func spritMarkDown(orgin File) [][]string {
+	markDownsMap := make(map[int][][]string)
 
-	var items [][]string
-
-	items = append(items, make([]string, 0))
-	count := len(items) - 1
-
-	for {
-		tempItems := spLines(lines[:50])
-		for i, item := range tempItems {
-			if i != 0 {
-				items = append(items, make([]string, 0))
-				count = len(items) - 1
-			}
-			items[count] = append(items[count], item...)
-		}
-		if len(lines) < 50 {
+	for i := 0; ; i++ {
+		if len(orgin.Content) < 50 {
+			markDownsMap[i] = spLines(orgin.Content)
 			break
+		} else {
+			markDownsMap[i] = spLines(orgin.Content[:50])
+			orgin.Content = orgin.Content[50:]
 		}
-		lines = lines[50:]
 	}
 
-	for i, item := range items {
-		if i == 0 {
-			continue
-		}
-
-		outName := item[0]
-		index := fmt.Sprintf("%03d_", i)
-		outName = strings.Replace(outName, "# ", index, 1)
-		writeFile(item, this.Path+outName+".md",
-			os.O_CREATE|os.O_RDWR)
-	}
-
+	return mergeMap(markDownsMap)
 }
 
 func spLines(lines []string) [][]string {
-	//var items [][]string
 	items := make([][]string, 1)
 
 	count := 0
@@ -83,38 +67,16 @@ func spLines(lines []string) [][]string {
 	return items
 }
 
-//파일을 주면 로그를 남긴다.
-func openToLines(name string) []string {
-	file, err := os.Open(name)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
+func markDownSave(mdFiles [][]string, path string) {
+	for i, item := range mdFiles {
+		if i == 0 {
+			continue
+		}
 
-	scanner := bufio.NewScanner(file)
-	var lines []string
-
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		fmt.Println("reading standard input:", err)
-	}
-	return lines
-}
-
-func writeFile(lines []string, logName string, flg int) {
-	file, err := os.OpenFile(
-		logName,
-		flg,
-		os.FileMode(0644))
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer file.Close()
-
-	for _, line := range lines {
-		fmt.Fprintln(file, line)
+		outName := item[0]
+		index := fmt.Sprintf("%03d_", i)
+		outName = strings.Replace(outName, "# ", index, 1)
+		writeFile(item, path+outName+".md",
+			os.O_CREATE|os.O_RDWR)
 	}
 }
