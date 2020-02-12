@@ -27,14 +27,21 @@ func main() {
 	b.IniFileName = "../소제목.txt"
 	b.OutFile = "../바른성경_Out.md"
 
-	mdSpinder := new(alpaca.MDSplinder)
-	mdSpinder.Name = "Instance1"
-	mdSpinder.InFile = "001_모세오경.md"
-	mdSpinder.Path = "../"
+	mds := new(alpaca.MDSplinder)
+	mds.Name = "Instance1"
+	mds.InFile = "001_모세오경.md"
+	mds.Path = "../"
 
-	//start([]selecter{u})
-	mdSpinder.InFile = "009_공동서신.md"
-	mdSpinder.Execute()
+	dim := new(alpaca.DisplayIniMaker)
+	dim.Name = "Instance1"
+	dim.IniFileName = "DispMessage.ini"
+	dim.Path = "./DIM_Work"
+	dim.Match = "\\.(h|cpp|c)"
+
+	dim.Execute()
+	//start([]selecter{u, b, mds})
+	//mdSpinder.InFile = "009_공동서신.md"
+	//mdSpinder.Execute()
 }
 
 func start(items []selecter) {
@@ -46,7 +53,7 @@ func start(items []selecter) {
 
 		var s1 string
 
-		_, err := fmt.Scan(&s1)
+		_, err := fmt.Scanln(&s1)
 
 		if err != nil {
 			fmt.Println(err)

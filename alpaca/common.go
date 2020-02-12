@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 )
 
 //File thrtjd
 type File struct {
+	Path    string
 	Name    string
 	Content []string
 }
@@ -43,7 +45,7 @@ func readFileString(input string) (File, error) {
 
 //파일을 주면 로그를 남긴다.
 func readFile(input File) (File, error) {
-	file, err := os.Open(input.Name)
+	file, err := os.Open(input.Path + input.Name)
 	if err != nil {
 		return input, err
 	}
@@ -73,4 +75,34 @@ func writeFile(lines []string, logName string, flg int) {
 	for _, line := range lines {
 		fmt.Fprintln(file, line)
 	}
+}
+
+//"\\.(h|cpp|c)"
+func folderSerch(dirname, matchString string) ([]File, error) {
+	var findFiles []File
+	f, err := os.Open(dirname)
+	if err != nil {
+		return findFiles, err
+	}
+	files, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		return findFiles, err
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			temp, _ := folderSerch(dirname+"/"+file.Name(), matchString)
+			findFiles = append(findFiles, temp...)
+		} else {
+			isMatch, err := regexp.MatchString(matchString, file.Name())
+			if err != nil {
+				continue
+			}
+			if isMatch {
+				findFiles = append(findFiles, File{Path: dirname + "/", Name: file.Name()})
+			}
+		}
+	}
+	return findFiles, nil
 }
