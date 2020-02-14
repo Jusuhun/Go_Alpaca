@@ -38,6 +38,14 @@ func main() {
 	dim.Path = "./DIM_Work"
 	dim.Match = "\\.(cpp|c)"
 
+	btm := new(alpaca.BibleToMarkdown)
+	btm.Name = "Instance1"
+	btm.IniFileName = "BibleInfo.ini"
+	btm.BookName = "./개역개정.txt"
+	btm.OutPath = "./Output/"
+
+	btm.Execute()
+
 	//start([]selecter{u, b, mds})
 	//mdSpinder.InFile = "009_공동서신.md"
 	//mdSpinder.Execute()

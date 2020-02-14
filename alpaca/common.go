@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+
+	"gopkg.in/ini.v1"
 )
 
 //File thrtjd
@@ -123,4 +125,15 @@ func folderSerch(dirname, matchString string) ([]File, error) {
 		}
 	}
 	return findFiles, nil
+}
+
+func findIni(file, section, key string) string {
+	cfg, err := ini.Load(file)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+
+	//각종 타입으로 가져올 수 있습니다.
+	return cfg.Section(section).Key(key).String()
 }
