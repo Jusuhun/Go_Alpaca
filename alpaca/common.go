@@ -77,7 +77,25 @@ func writeFile(lines []string, logName string, flg int) {
 	}
 }
 
-//"\\.(h|cpp|c)"
+func findFolder(dirname string) ([]string, error) {
+	var folderNames []string
+	f, err := os.Open(dirname)
+	if err != nil {
+		return folderNames, err
+	}
+	files, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		return folderNames, err
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			folderNames = append(folderNames, file.Name())
+		}
+	}
+	return folderNames, nil
+}
 func folderSerch(dirname, matchString string) ([]File, error) {
 	var findFiles []File
 	f, err := os.Open(dirname)

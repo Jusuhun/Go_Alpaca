@@ -17,7 +17,7 @@ type DisplayIniMaker struct {
 	Name        string
 	Path        string
 	IniFileName string
-	Match       string //"\\.(h|cpp|c)"
+	Match       string
 }
 
 //GetName 인스턴스 이름을 받아온다.
@@ -27,55 +27,58 @@ func (dim DisplayIniMaker) GetName() string {
 
 //Execute 실행한다
 func (dim DisplayIniMaker) Execute() {
-	files, _ := folderSerch(dim.Path+"/", dim.Match)
-
 	os.MkdirAll(dim.Path+"_Export", os.ModePerm)
 
-	// 출력파일 생성
-	os.Create(dim.Path + "_Export/" + dim.IniFileName)
-	// fo, err := os.Create(dim.Path + "_Export" + dim.IniFileName)
-	// if err != nil {
-	//     panic(err)
-	// }
-	// fo.Close()
-	cfg, err := ini.Load(dim.Path + "_Export/" + dim.IniFileName)
-	if err != nil {
-		fmt.Println(err)
-	}
+	folders, _ := findFolder(dim.Path)
 
-	for _, file := range files {
-		orgin, _ := readFile(file)
-		_ = orgin
-		result := File{}
-		result.Path = strings.Replace(file.Path, dim.Path, dim.Path+"_Export", 1)
-		result.Name = orgin.Name
+	for _, folder := range folders {
 
-		count := 0
-		keyBase := orgin.Name
-		for _, line := range orgin.Content {
-			key := fmt.Sprintf("%s_%03d", keyBase, count+1)
+		files, _ := folderSerch(dim.Path+"/"+folder, dim.Match)
+		// 출력파일 생성
+		outIni := dim.Path + "_Export/" + folder + dim.IniFileName
+		os.Create(outIni)
 
-			line = eucKRDecoder(line)
+		for _, file := range files {
+			orgin, _ := readFile(file)
+			_ = orgin
+			result := File{}
+			result.Path = strings.Replace(file.Path, dim.Path, dim.Path+"_Export", 1)
+			result.Name = orgin.Name
 
-			ischaged, chage, text := lineChage(line, key)
-			addComment := false
-			for ischaged {
-				cfg.Section("KOREAN").Key(key).SetValue(text)
-				cfg.SaveTo(dim.Path + "_Export/" + dim.IniFileName)
-				addComment = true
-				count++
+			count := 0
+			keyBase := orgin.Name
 
-				ischaged, chage, text = lineChage(chage, key)
+			cfg, err := ini.Load(outIni)
+			if err != nil {
+				fmt.Println(err)
 			}
-			if addComment {
-				chage = chage + "//200212 auto.JSH"
+
+			for _, line := range orgin.Content {
+				line = eucKRDecoder(line)
+
+				key := fmt.Sprintf("%s_%03d", keyBase, count+1)
+				ischaged, chage, text := lineChage(line, key)
+				addComment := false
+				for ischaged {
+					cfg.Section("KOREAN").Key(key).SetValue(text)
+					addComment = true
+					count++
+
+					key = fmt.Sprintf("%s_%03d", keyBase, count+1)
+					ischaged, chage, text = lineChage(chage, key)
+				}
+				if addComment {
+					chage = chage + "//200212 auto.JSH"
+				}
+				chage = eucKREncoder(chage)
+				result.Content = append(result.Content, chage)
 			}
-			chage = eucKREncoder(chage)
-			result.Content = append(result.Content, chage)
+
+			cfg.SaveTo(outIni)
+
+			os.MkdirAll(result.Path, os.ModePerm)
+			writeFile(result.Content, result.Path+result.Name, os.O_CREATE|os.O_RDWR)
 		}
-
-		os.MkdirAll(result.Path, os.ModePerm)
-		writeFile(result.Content, result.Path+result.Name, os.O_CREATE|os.O_RDWR)
 	}
 }
 
@@ -88,7 +91,7 @@ func lineChage(line, key string) (bool, string, string) {
 	find := re.FindString(line)
 	find2 := re2nd.FindString(find)
 	if find2 == "" {
-		re2, _ := regexp.Compile("\"[^\"]*[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]+[^\"]*\"")
+		re2, _ := regexp.Compile("\\(\\s*\"[^\"]*[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]+[^\"]*\"\\s*\\)")
 		find = re2.FindString(line)
 		find2 = re2nd.FindString(find)
 	}

@@ -36,9 +36,8 @@ func main() {
 	dim.Name = "Instance1"
 	dim.IniFileName = "DispMessage.ini"
 	dim.Path = "./DIM_Work"
-	dim.Match = "\\.(h|cpp|c)"
+	dim.Match = "\\.(cpp|c)"
 
-	dim.Execute()
 	//start([]selecter{u, b, mds})
 	//mdSpinder.InFile = "009_공동서신.md"
 	//mdSpinder.Execute()
