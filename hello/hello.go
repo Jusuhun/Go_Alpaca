@@ -18,31 +18,36 @@ type selecter interface {
 }
 
 func main() {
+	basePath := ""
+	if true {
+		basePath = "../../../test/"
+	}
+
 	u := new(unicode.Unicode)
 	u.Name = "134"
 
 	b := new(bible.Bible)
 	b.Name = "Instance1"
-	b.BookName = "../바른성경.txt"
-	b.IniFileName = "../소제목.txt"
-	b.OutFile = "../바른성경_Out.md"
+	b.BookName = basePath + "바른성경.txt"
+	b.IniFileName = basePath + "소제목.txt"
+	b.OutFile = basePath + "바른성경_Out.md"
 
 	mds := new(alpaca.MDSplinder)
 	mds.Name = "Instance1"
 	mds.InFile = "001_모세오경.md"
-	mds.Path = "../"
+	mds.Path = basePath
 
 	dim := new(alpaca.DisplayIniMaker)
 	dim.Name = "Instance1"
 	dim.IniFileName = "DispMessage.ini"
-	dim.Path = "./DIM_Work"
+	dim.Path = basePath + "DIM_Work/"
 	dim.Match = "\\.(cpp|c)"
 
 	btm := new(alpaca.BibleToMarkdown)
 	btm.Name = "Instance1"
 	btm.IniFileName = "BibleInfo.ini"
 	btm.BookName = "./개역개정.txt"
-	btm.OutPath = "./Output/"
+	btm.OutPath = basePath + "Output/"
 
 	btm.Execute()
 
