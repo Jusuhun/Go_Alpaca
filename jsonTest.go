@@ -2,15 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 )
 
 func main() {
-	log.Println("start")
-	fmt.Scanln()
-	log.Println("start")
 	dec := json.NewDecoder(os.Stdin)
 	enc := json.NewEncoder(os.Stdout)
 	for {
