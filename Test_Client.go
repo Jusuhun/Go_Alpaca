@@ -1,17 +1,17 @@
 package main
 
 import (
+	"GO_Alpaca/testadepter"
 	"GO_Alpaca/testcontrl"
-	"encoding/json"
 	"log"
 	"net"
 	"time"
 )
 
-var mapCmd map[string]func(interface{})
-
+//커맨드맵에서 명령을 찾는 것과 보낸 명령의 응답을 기다리는 맵에서 데이터를 분석하는것의 처리 시간이 주요 포인트 일듯
+//TCP 통신의 RTT 시간도 중요 포인트
 func main() {
-	mapCmd := testcontrl.Mapping()
+	testadepter.Mapping(testcontrl.Mapping())
 
 	conn, err := net.Dial("tcp", "127.0.0.1:9200")
 	if nil != err {
@@ -28,14 +28,13 @@ func main() {
 				return
 			}
 
-			decodeCmd(data[:n])
+			testadepter.decodeCmd(data[:n])
 			//time.Sleep(time.Duration(1) * time.Millisecond) //Block이면 필요 없지 않나
 		}
 	}()
 
 	for {
-		b, err := json.Marshal()
-		//Clear
+		b, err := testadepter.Marshal()
 		if err != nil {
 			continue
 		}
@@ -46,46 +45,5 @@ func main() {
 			break
 		}
 		time.Sleep(time.Duration(1) * time.Millisecond)
-	}
-}
-
-func appendSendList(object interface{}) {
-}
-
-func decodeCmd(str []byte) {
-	var f interface{}
-
-	if err := json.Unmarshal(str, &f); err != nil {
-		log.Println(err)
-		return
-	}
-
-	m := f.(map[string]interface{})
-	for k, v := range m {
-		if k != "Send List" {
-			continue
-		}
-
-		switch vv := v.(type) {
-		case []interface{}:
-			for i, u := range vv {
-				go runCmd(u)
-			}
-		}
-	}
-}
-
-func runCmd(object interface{}) {
-	m := object.(map[string]interface{})
-
-	for k, v := range m {
-		if k != "Command" {
-			continue
-		}
-
-		switch vv := v.(type) {
-		case string:
-			mapCmd[vv](object)
-		}
 	}
 }
